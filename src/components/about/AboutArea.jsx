@@ -15,59 +15,48 @@ function AboutArea() {
               <div className="about-title">
                 <span>About us</span>
                 <h2>
-                  Transform Your Home with Top-Quality Services: Discover the
-                  Ultimate Home Service Provider for All Your Needs!
+                  Providing Quality Healthcare: Your Trusted Partner in Medical Services
                 </h2>
               </div>
               <div>
-                <b>Welcome to WorkDeal!</b>
-
+                <b>Welcome to HealthCarePro!</b>
                 <p>
-                  {" "}
-                  Your premier destination for all your home service needs. We
-                  are a trusted and reliable online platform that connects
-                  homeowners with top-rated service professionals in their local
-                  area. Our goal is to make it effortless for you to find and
-                  hire experienced professionals who can provide high-quality
-                  services to enhance your home.
+                  Your trusted destination for all your healthcare needs. We are committed to providing compassionate and comprehensive medical services to our patients. Our team of experienced healthcare professionals is dedicated to ensuring your well-being and delivering the highest quality of care.
                 </p>
               </div>
               <p>
-                we aim to be your first choice resource for all your home
-                service needs. Explore our website today and take the first step
-                towards enhancing your home with the help of trusted experts.
+                At HealthCarePro, we prioritize your health and strive to be your partner in wellness. Explore our range of medical services and let us help you lead a healthier life.
               </p>
               <ul className="feature-list">
                 <li>
                   <i className="bi bi-check-all" />
-                  Join us Today.
+                  Expert Medical Professionals.
                 </li>
                 <li>
                   <i className="bi bi-check-all" />
-                  Let us find you best service provider.
+                  Comprehensive Healthcare Solutions.
                 </li>
               </ul>
-
               <div className="cmn-btn">
-                <Link legacyBehavior href="/account">
-                  <a>Join Now</a>
+                <Link legacyBehavior href="/appointments">
+                  <a>Book an Appointment</a>
                 </Link>
               </div>
               <div className="feature-counts">
                 <div className="single-count">
-                  <span className="counter">40</span>
+                  <span className="counter">50</span>
                   <span>+</span>
-                  <h5>Team Member</h5>
+                  <h5>Medical Staff</h5>
                 </div>
                 <div className="single-count">
-                  <span className="counter">1550</span>
+                  <span className="counter">2000</span>
                   <span>+</span>
-                  <h5>Satisfied Client</h5>
+                  <h5>Satisfied Patients</h5>
                 </div>
                 <div className="single-count">
-                  <span className="counter">20</span>
+                  <span className="counter">10</span>
                   <span>+</span>
-                  <h5>Services</h5>
+                  <h5>Specialized Services</h5>
                 </div>
               </div>
             </div>
@@ -79,19 +68,19 @@ function AboutArea() {
           >
             <div className="about-right">
               <div className="shape">
-                <img src="assets/images/about/about-shape.png" alt="" />
+                <img src="assets/images/about/doctor-about-shape.png" alt="" />
               </div>
               <div className="frame-1">
                 <div className="img-1">
-                  <img src="assets/images/about/about-banner-1.jpg" alt="" />
+                  <img src="assets/images/about/doctor-about-banner-1.jpg" alt="" />
                 </div>
               </div>
               <div className="frame-2">
                 <div className="img-1">
-                  <img src="assets/images/about/about-banner-2.jpg" alt="" />
+                  <img src="assets/images/about/doctor-about-banner-2.jpg" alt="" />
                 </div>
                 <div className="img-2">
-                  <img src="assets/images/about/about-banner-3.jpg" alt="" />
+                  <img src="assets/images/about/doctor-about-banner-3.jpg" alt="" />
                 </div>
               </div>
             </div>
@@ -100,6 +89,4 @@ function AboutArea() {
       </div>
     </section>
   );
-}
-
-export default AboutArea;
+}export default AboutArea;
