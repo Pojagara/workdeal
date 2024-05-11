@@ -1,404 +1,104 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { auth } from "../../firebase/firebase";
-import { Dialog, DialogTitle,ToggleButton } from "@mui/material";
-import Review from "../review/review";
+import { Dialog, DialogTitle, ToggleButton } from "@mui/material";
+import Appointment from "../appointment/Appointment";
 import DialogLayout from "../common/DialogLayout";
-import { connectStorageEmulator } from "firebase/storage";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Payment from "./Payment";
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert';
 
-
-function OrderClient() {
+function DoctorBooking() {
   const router = useRouter();
   const { query } = router;
-  
 
-
- const [status,setStatus] = useState();
-  const [orders, setOrdersData] = useState([]);
-  const [itemToComplete,setItemToComplete]=useState({})
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentToComplete, setAppointmentToComplete] = useState({});
   const [payment, setPayment] = useState(false);
-  const[Submit,setSubmit] = useState(false);
-  
+  const [submit, setSubmit] = useState(false);
 
-  async function getOrders() {
-    if (auth.currentUser) {
-      const userid = auth.currentUser.uid;
-      axios
-        .post(`http://localhost:5000/get-orders-client/`, {
-          orderByUid: userid,
-        })
-        .then((res) => {
-          console.log(res.data);
-          setOrdersData(res.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      axios
-        .get("http://localhost:5000/get-review-score-from-service", {
-          params: { uid: auth.currentUser.uid },
-        })
-        .then((res) => {
-          setReviewScore(res.data.review_score);
-        });
-    }
-  }
-  
-  const [uid, setUid] = useState();
-  const [clientUid, setClientUid] = useState();
-  const [name, setName] = useState();
-  const [workId, setWorkId] = useState();
-  const [review_score, setReviewScore] = useState();
-  function getCurrentComplete(id) {
-    for (let i = 0; i < orders.length; i++) {
-      if (orders[i]._id == id) {
-        setUid(orders[i].orderToUid);
-        setClientUid(orders[i].orderByUid);
-        setName(orders[i].orderByName);
-        setWorkId(orders[i]._id);
-      }
-    }
-    setOpenReview(true);
-  }
-   console.log(query.longitude)
- 
-console.log(auth.currentUser.uid)
-  useEffect(()=>{
-    if(query.latitude && query.longitude){
-
-    axios.post("http://localhost:5000/location", {
-     
-      longitude : query.longitude ,
-      latitude : query.latitude ,
-       clientid: auth.currentUser.uid
-      // workerid:,
-     
-    }).then((res)=>{
-      console.log(res.data);
-    }).catch((err)=>{
-      console.log(err);
-    })
-  }
-},[query.longitude,query.latitude])
-  async function cancelTheService(id) {
-    setStatus("cancelled")
-    await axios
-      .post("http://localhost:5000/cancel-service", {
-        _id: id,
-      })
-      .then((res) => {
-        if (res.status == 200) {
-          getOrders();
-          setShowCancel(true);
-        }
-      });
-  }
-  const [data , setData] = useState([]);
-  const [workname,setWorkname] = useState();
-  function isCompleted(id,uid,workid,name) {
-   
-  
-//  console.log(query)
-    setItemToComplete({id:id,uid:uid})
-    setWorkname(name)
-    setShowCompleted(true);
-    setPayment(true);
-   
-      if (query && Object.keys(query).length > 0) {
-        // Query parameters are present
-        console.log(workid, uid)
-        axios.post('http://localhost:5000/done/', {
-          params:{
-            workId: workid,
-          clientId: uid,
-          status: "done"
-          }
-        }).then(() => {
-          // Handle success if needed
-        }).catch(error => {
-          console.error('Error:', error);
-        });
-      } else {
-        // Query parameters are not present
-        console.log("workid")
-        console.log(workid);
-        console.log("clientid")
-         console.log(uid)
-        axios.get("http://localhost:5000/client", {
-          params: {
-            workId: workid,
-            clientId: uid
-          }
-        }).then((response) => {
-          setData(response.data);
-        }).catch((error) => {
-          console.error('Error:', error);
-        });
-      }
-    
-
-   
-  
-  }
-  //  console.log(data);
-   const ans = data.map((data) => {
-    return data.status;
-   })
-   const type = data.map((data) => {
-    return data.ptype;
-   })
-   const price = data.map((data) => {
-    return data.price;
-   })
-   const description = data.map((data) => {
-    return data.description;
-   })
-   
-  async function completeTheservice() {
- 
-    await axios
-      .post("http://localhost:5000/complete-service", {
-        _id: itemToComplete.id,
-      })
-      .then((res) => {
-        getOrders();
-        getCurrentComplete(itemToComplete.id);
-        setShowCompleted(false);
-        setWorkCount(itemToComplete.uid);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  async function setWorkCount(orderToUid) {
-    const uid = orderToUid;
-    axios
-      .get("http://localhost:5000/get-work-count", {
-        uid: uid,
-      })
-      .then((res) => {
-        axios
-          .post("http://localhost:5000/set-work-count", {
-            uid: uid,
-            count: res,
-          })
-          .then((res) => {})
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
+  useEffect(() => {
+    if (query.latitude && query.longitude) {
+      // Adjust API call to fetch doctor appointments based on location
+      axios.post("http://localhost:5000/get-appointments", {
+        latitude: query.latitude,
+        longitude: query.longitude,
+      }).then((res) => {
+        setAppointments(res.data);
+      }).catch((err) => {
         console.log(err);
       });
+    }
+  }, [query.latitude, query.longitude]);
+
+  // Function to handle completing appointments
+  function completeAppointment(appointmentId) {
+    // Implement logic to mark appointment as completed
+    setAppointmentToComplete(appointmentId);
+    setPayment(true);
+    // Additional logic for marking appointment as completed
   }
- 
 
-  
-  useEffect(() => {
-    getOrders();
-  }, []);
-
-  const [openReview, setOpenReview] = useState(false);
-  const closeReview = () => {
-    setOpenReview(false);
-  };
-
-  const [showCancel, setShowCancel] = useState(false);
-  const [showCompleted, setShowCompleted] = useState(false);
-  const handleSubmit = () => {
-    // Submit logic here, for example, you can make an API call to save the form data
-    // Show toast notification
+  // Function to handle payment submission
+  function handleSubmit() {
+    // Implement logic for payment submission
+    // For example, show a confirmation dialog
     Swal({
       title: 'Payment Confirmation',
-      text: `Your payment request from ${workname} with price ${price} for ${description} has been submitted. Do you want to proceed with the payment?`,
+      text: `Your payment request for appointment has been submitted. Do you want to proceed with the payment?`,
       icon: 'warning',
       showCancelButton: true,
-      showconfirmButton: true,
       confirmButtonText: 'Yes, proceed with payment',
       cancelButtonText: 'No, cancel',
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger',
-      },
     }).then((result) => {
-      if (!result.isConfirmed) {
-        // Proceed with payment
+      if (result.isConfirmed) {
         setSubmit(true);
-      } else {
-        // Handle cancellation
-        swal("cancle online request!", "please done your payment process....", {
-          icon : "error",
-          buttons: {
-            confirm: {
-              className : 'btn btn-danger'
-            }
-          },
-        }).then(() => {
-          window.location.href = '/account?status=cancle'
-        })
+        // Proceed with payment logic
       }
     });
-    }
-    const closeno=()=>{
-      swal("!Feedback fosters growth, empowers improvement, builds trust, enhances communication, and ensures mutual understanding between workers and customers", {
-        buttons: false,
-        timer: 3000,
-      });
-      
-    }
-  
+  }
+
   return (
-    <div
-      className="tab-pane fade"
-      id="v-pills-order"
-      role="tabpanel"
-      aria-labelledby="v-pills-order-tab"
-    >
-      <Dialog open={openReview} onClose={closeReview}>
-        <DialogTitle>Please rate the service</DialogTitle>
-        <Review
-          uid={uid}
-          clientUid={clientUid}
-          name={name}
-          review_score={review_score}
-          workId={workId}
-          closeDialog={setOpenReview}
-        />
-      </Dialog>
-      {showCancel && (
-        <DialogLayout
-          title={"service cancelled"}
-          content={"Thank you for trying our platform\nhope you like it"}
-          buttonText={"DONE"}
-        />
-      )}
-      {showCompleted && (
-        <Dialog open={showCompleted} close={close}>
-          <center>
-
-            <DialogTitle>Completed?</DialogTitle>
-            <p
-              style={{
-                marginLeft: "30px",
-                marginRight: "30px",
-                marginBottom: "20px",
-              }}
-            >
-              "is service provided by worker? please click 'YES' if work is
-              done"
-            </p>
-          </center>
-          <div className="row" >
-            <div className="col-6">
-              <ToggleButton onClick={completeTheservice} style={{width:"60%" , borderColor:"green" , marginLeft:"40%" , marginBottom:"10%"}}>YES</ToggleButton>
-            </div>
-            <div className="col-6">
-              <ToggleButton onClick={closeno} style={{width:"60%" , borderColor:"green" , marginTop:"0%", marginLeft:"0%"}}>NO</ToggleButton>
-            </div>
-          </div>
+    <div className="doctor-booking">
+      {/* Dialog for payment */}
+      {payment && (
+        <Dialog open={payment} onClose={() => setPayment(false)}>
+          {/* Modify content to reflect payment details */}
+          <DialogTitle>Please complete the payment process</DialogTitle>
+          <ToggleButton onClick={handleSubmit}>Proceed with Payment</ToggleButton>
         </Dialog>
       )}
-       { type=="online" && ans=="online" &&
-        <Dialog open={payment} close={close}>
-         "please complete payment process"
-          <ToggleButton onClick={handleSubmit} >PAYMENT</ToggleButton>
-        </Dialog>
 
-       }
-      { Submit&&
-         <Dialog open={payment} close={close} style={{width:"100%"}}>
-          
-          <Payment price={price} description= {description} />
-        </Dialog>
-      }
-       
-      <div className="all-order">
-        <div className="order-head">
-          <h3>All Order</h3>
-        </div>
-        <div className="order-table" style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%" }}>
-            <thead>
-              <tr className="head">
-                <th>Service Title</th>
-                <th>Order ID</th>
-                <th>Order To</th>
-                <th>Order Ammount</th>
-                <th>Address</th>
-                <th>Status</th>
-                <th>Action</th>
-                <th>location</th>
+      {/* Render list of appointments */}
+      <div className="appointment-list">
+        <h3>All Appointments</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Doctor</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {appointments.map((appointment) => (
+              <tr key={appointment.id}>
+                <td>{appointment.doctorName}</td>
+                <td>{appointment.date}</td>
+                <td>{appointment.time}</td>
+                <td>{appointment.status}</td>
+                <td>
+                  {appointment.status === "pending" && (
+                    <button onClick={() => completeAppointment(appointment.id)}>Complete</button>
+                  )}
+                </td>
               </tr>
-            </thead>
-            {/* every single data*/}
-            {orders && (
-              <tbody>
-                {orders.map((item) => (
-                  <tr key={item._id}>
-                    <td data-label="Service Title">
-                      <span>{item.service}</span>
-                    </td>
-                    <td data-label="Order ID">{item._id}</td>
-                    <td data-label="Service Provider">{item.orderToName}</td>
-                    <td data-label="Order Ammount">
-                      {item.amount == 0 ? "Not Specified" : item.amount}
-                    </td>
-                    <td data-label="Address">{item.address}</td>
-                    <td data-label="Status">{item.status}</td>
-                    <td data-label="Action">
-                      <div className="action">
-                        {item.status == "pending" ? (
-                          <button
-                            className="btn-current-task"
-                            type="button"
-                            onClick={() => cancelTheService(item._id)}
-                          >
-                            cancel
-                          </button>
-                        ) : item.status == "working" ? (
-                          <div>
-                            <button  
-                              className="btn-current-task-cancel"
-                              type="button"
-                              onClick={() =>
-                                isCompleted(item._id,item.orderToUid,item.orderByUid,item.orderToName)
-                              }
-                            >
-                            <a href="/account" > completed?</a> 
-                            </button>
-                          </div>
-                        ) : item.status == "completed" ? (
-                          <button className="btn-current-task" type="button">
-                            completed
-                          </button>
-                        ) : item.status == "cancelled" ? (
-                          <button
-                            className="btn-current-task-cancel"
-                            type="button"
-                        
-                          >
-                            cancelled
-                          </button>
-                        ) : (
-                          "error"
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            )}
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
 
-export default OrderClient;
+export default DoctorBooking;
